@@ -1,25 +1,5 @@
 from enum import Enum
 
-def assert_square(list_of_lists):
-    first_row_length = len(list_of_lists[0])
-    for row in list_of_lists:
-        assert len(row) == first_row_length
-    assert first_row_length == len(list_of_lists)
-
-
-def transpose(list_of_lists):
-    num_columns = len(list_of_lists[0])
-    columns = [[] for i in range(num_columns)]
-    row_num = 0
-    for row in list_of_lists:
-        index_in_row = 0
-        for i in row:
-            columns[index_in_row].append(i)
-            index_in_row += 1
-        row_num += 1
-    return columns
-
-
 Square = Enum("Square", "Empty X O")
 
 
@@ -52,13 +32,11 @@ class GameBoard:
             if len(squares[Square.Empty]) == 1 and len(squares[player]) == self.size - 1:
                 return squares[Square.Empty][0]
             return None
-        d1 = check_list_of_squares(self.diagonal)
-        d2 = check_list_of_squares(self.off_diagonal)
-        rows = list(map(check_list_of_squares, self.rows))
-        cols = list(map(check_list_of_squares, self.columns))
-        for coord in [d1] + [d2] + rows + cols:
-            if coord:
-                return coord
+        potential_wins = [check_list_of_squares(self.diagonal)]
+        potential_wins += [check_list_of_squares(self.off_diagonal)]
+        potential_wins += list(map(check_list_of_squares, self.rows))
+        potential_wins += list(map(check_list_of_squares, self.columns))
+        return [x for x in potential_wins if x is not None]
 
     def get_squares(self, list_of_coords):
         d = {x: self.get_square(*x) for x in list_of_coords}
