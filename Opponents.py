@@ -1,4 +1,4 @@
-from Board import Square
+from TickTackToe import Square
 
 
 class OpponentFactory:
@@ -14,6 +14,22 @@ class OpponentFactory:
         if not creator:
             raise ValueError((level, size))
         return creator()
+
+
+class MediumOpponent:
+    def play(self, game):
+        move_for = game.next_player()
+        other_player = Square.X if move_for == Square.O else Square.O
+
+        wins_for_this_player = game.gameBoard.find_winning_move(move_for)
+        if len(wins_for_this_player) > 0:
+            return wins_for_this_player[0]
+
+        wins_for_other_player = game.gameBoard.find_winning_move(other_player)
+        if len(wins_for_other_player) > 0:
+            return wins_for_other_player[0]
+
+        return game.gameBoard.get_empty_squares()[0]
 
 
 class HardOpponentSize3:
@@ -39,17 +55,12 @@ class HardOpponentSize3:
 
     def play(self, game):
         move_for = game.next_player()
+        other_player = Square.X if move_for == Square.O else Square.O
         move_number = game.number_of_moves(move_for)
         if move_for is Square.O:
             if move_number == 0:
                 first_x = game.history[Square.X][0]
                 return self.OPENING_BOOK['player_o']['first_move'](first_x)
-            if move_number == 1:
-                pass
-            if move_number == 2:
-                pass
-            if move_number == 3:
-                pass
 
         if move_for is Square.X:
             if move_number == 0:
@@ -57,13 +68,19 @@ class HardOpponentSize3:
             if move_number == 1:
                 first_o = game.history[Square.O][0]
                 return self.OPENING_BOOK['player_x']['second_move'](first_o)
-            if move_number == 2:
-                pass
-            if move_number == 3:
-                pass
-            if move_number == 4:
-                pass
+
+        wins_for_this_player = game.gameBoard.find_winning_move(move_for)
+        if len(wins_for_this_player) > 0:
+            return wins_for_this_player[0]
+
+        wins_for_other_player = game.gameBoard.find_winning_move(other_player)
+        if len(wins_for_other_player) > 0:
+            return wins_for_other_player[0]
+
+        return game.gameBoard.get_empty_squares()[0]
 
 
 opponentFactory = OpponentFactory()
-opponentFactory.register_opponent('hard',3,HardOpponentSize3)
+opponentFactory.register_opponent('hard', 3, HardOpponentSize3)
+opponentFactory.register_opponent('medium', 3, MediumOpponent)
+opponentFactory.register_opponent('medium', 4, MediumOpponent)
