@@ -1,6 +1,5 @@
 from enum import Enum
 Square = Enum("Square", "Empty X O")
-from Opponents import opponentFactory
 
 
 class GameBoard:
@@ -95,41 +94,22 @@ class RuleManager:
 
 
 class Game:
-    """Orchestrate a game with an Opponent and GameManager"""
-    def __init__(self, difficulty, size):
-        self.opponent = opponentFactory.get_opponent(difficulty, size)
+    """Orchestrate a game between team_x and team_o on board of size 'size'"""
+    def __init__(self, team_x, team_o, size):
         self.game_manager = RuleManager(size)
-        XorO = input("Play as X or O?:").upper().strip()
-        while XorO not in ['X', 'O']:
-            print("invalid input. Please enter X or O")
-            XorO = input("Play as X or O?:").upper().strip()
-        self.player_mark = Square.X if XorO == 'X' else Square.O
-        self.opponent_mark = Square.X if XorO == 'O' else Square.O
         self.this_turn = Square.X
-
-    def do_player_turn(self):
-        print(self.game_manager)
-        print("top left is 0,0")
-        x = int(input("enter x:"))
-        y = int(input("enter y:"))
-        self.game_manager.set(x, y, self.player_mark)
-
-    def do_computer_turn(self):
-        move_x, move_y = self.opponent.play(self.game_manager)
-        self.game_manager.set(move_x, move_y, self.opponent_mark)
+        self.team = {Square.X: team_x, Square.O: team_o}
 
     def do_turn(self):
-        if self.player_mark is self.this_turn:
-            self.do_player_turn()
-        else:
-            self.do_computer_turn()
+        x, y = self.team[self.this_turn].play(self.game_manager)
+        self.game_manager.set(x, y, self.this_turn)
         self.this_turn = Square.X if self.this_turn is Square.O else Square.O
 
     def is_win_or_tie(self):
         is_over, winner = self.game_manager.is_game_over()
         if is_over and winner is not None:
             print(self.game_manager)
-            print(f"{winner} is the winner")
+            print(f"{winner} the winner")
             return True
         elif is_over:
             print(self.game_manager)
