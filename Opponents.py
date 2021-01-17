@@ -16,6 +16,14 @@ class OpponentFactory:
         return creator()
 
 
+class HumanPlayer:
+    def play(self, game):
+        print(game)
+        print("top left is 0,0")
+        x = int(input("enter x:"))
+        y = int(input("enter y:"))
+        return x, y
+
 class MediumOpponent:
     def play(self, game):
         move_for = game.next_player()
@@ -84,3 +92,4 @@ opponentFactory = OpponentFactory()
 opponentFactory.register_opponent('hard', 3, HardOpponentSize3)
 opponentFactory.register_opponent('medium', 3, MediumOpponent)
 opponentFactory.register_opponent('medium', 4, MediumOpponent)
+opponentFactory.register_opponent('human', None, HumanPlayer)
