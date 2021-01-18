@@ -2,12 +2,23 @@ from enum import Enum
 from copy import deepcopy
 Square = Enum("Square", "Empty X O")
 
+class Board:
 
-class GameBoard:
+    def __init__(self, size, def_val):
+        self._board = [[def_val]*size for i in range(size)]
+        self.size = size
+
+    def get_square(self, coord):
+        return self._board[coord[1]][coord[0]]
+
+    def set_square(self, coord, mark):
+        self._board[coord[1]][coord[0]] = mark
+
+
+class GameBoard(Board):
 
     def __init__(self, size):
-        self._board = [[Square.Empty]*size for i in range(size)]
-        self.size = size
+        super().__init__(size, Square.Empty)
         self._rows = [[(j, i) for j in range(size)] for i in range(size)]
         self._columns = [[(i, j) for j in range(size)] for i in range(size)]
         self._diagonal = [(i, i) for i in range(size)]
@@ -17,8 +28,12 @@ class GameBoard:
         def row_to_string(this_row):
             return ''.join([f"|{square_to_string[x]}" for x in this_row]) + '|\n'
 
+        def get_squares(row):
+            return list(map(self.get_square, row))
+
         square_to_string = {Square.Empty: " ", Square.O: "O", Square.X: "X"}
-        return ''.join(list(map(row_to_string, reversed(self._board))))
+        rows = list(map(get_squares, self._rows))
+        return ''.join(list(map(row_to_string, reversed(rows))))
 
     def get_empty_squares(self):
         def get_empty_squares(list_of_coords):
@@ -45,17 +60,11 @@ class GameBoard:
         return [x for x in potential_wins if x is not None]
 
     def get_squares(self, list_of_coords):
-        d = {x: self.get_square(*x) for x in list_of_coords}
+        d = {x: self.get_square(x) for x in list_of_coords}
         d2 = {Square.X: [], Square.O: [], Square.Empty: []}
         for key, value in d.items():
             d2[value].append(key)
         return d2
-
-    def get_square(self, x, y):
-        return self._board[y][x]
-
-    def set_square(self, x, y, mark):
-        self._board[y][x] = mark
 
 
 class RuleManager:
@@ -76,9 +85,9 @@ class RuleManager:
 
     def set(self, x, y, mark):
         """Write and X or and O on gameBord. Check to make sure its and empty square."""
-        if self.gameBoard.get_square(x, y) is not Square.Empty:
+        if self.gameBoard.get_square((x, y)) is not Square.Empty:
             raise ValueError(f'square {x} {y} is not empty. Cannot set to {mark}')
-        self.gameBoard.set_square(x, y, mark)
+        self.gameBoard.set_square((x, y), mark)
         self.history[mark].append((x, y))
 
     def number_of_moves(self, player):
