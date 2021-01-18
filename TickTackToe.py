@@ -2,8 +2,8 @@ from enum import Enum
 from copy import deepcopy
 Square = Enum("Square", "Empty X O")
 
-class Board:
 
+class Board:
     def __init__(self, size, def_val):
         self._board = [[def_val]*size for i in range(size)]
         self.size = size

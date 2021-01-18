@@ -37,13 +37,10 @@ class RecursiveSearchAlgorithm:
     @max_depth
     def is_good_move(self, game):
         if game.is_game_over()[0]:
-            print("win found")
             return True  # you cannot loose on your turn - only win or draw
         if self.search_depth_exceeded():
-            print("Depth exceeded")
             return True  # eventually we stop looking and say its safe
         if game.is_winnable():
-            print("opponent win found")
             return False  # it we have left game in a state were opponent can win
         can_be_won = True  # we can win (or draw) unless we find opponent has winning move
         for opponent_move in game.get_moves():
