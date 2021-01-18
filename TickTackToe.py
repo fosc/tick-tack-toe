@@ -1,4 +1,5 @@
 from enum import Enum
+from copy import deepcopy
 Square = Enum("Square", "Empty X O")
 
 
@@ -17,7 +18,7 @@ class GameBoard:
             return ''.join([f"|{square_to_string[x]}" for x in this_row]) + '|\n'
 
         square_to_string = {Square.Empty: " ", Square.O: "O", Square.X: "X"}
-        return ''.join(list(map(row_to_string, self._board)))
+        return ''.join(list(map(row_to_string, reversed(self._board))))
 
     def get_empty_squares(self):
         def get_empty_squares(list_of_coords):
@@ -63,6 +64,16 @@ class RuleManager:
         self.gameBoard = GameBoard(size)
         self.history = {Square.X: [], Square.O: []}
 
+    def __add__(self, other):
+        if type(other) is tuple:
+            game_copy = deepcopy(self)
+            game_copy.set(*other, self.next_player())
+            return game_copy
+        raise ValueError('Only Tuples can be added to this class with the + operator.')
+
+    def get_moves(self):
+        return self.gameBoard.get_empty_squares()
+
     def set(self, x, y, mark):
         """Write and X or and O on gameBord. Check to make sure its and empty square."""
         if self.gameBoard.get_square(x, y) is not Square.Empty:
@@ -79,6 +90,10 @@ class RuleManager:
         x_count = self.number_of_moves(Square.X)
         o_count = self.number_of_moves(Square.O)
         return Square.X if x_count <= o_count else Square.O
+
+    def is_winnable(self):
+        """Return true if the active player can win."""
+        return len(self.gameBoard.find_winning_move(self.next_player())) > 0
 
     def is_game_over(self):
         if self.gameBoard.are_there_n_in_a_row(Square.X):

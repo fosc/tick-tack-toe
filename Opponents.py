@@ -16,16 +16,70 @@ class OpponentFactory:
         return creator()
 
 
-class HumanPlayer:
+class RecursiveSearchAlgorithm:
+    max_search_depth = 5
+
+    def __init__(self):
+        self.current_depth = 0
+
+    def search_depth_exceeded(self):
+        return self.current_depth >= self.max_search_depth
+
+    def max_depth(func):
+        def wrapper(self, *args, **kwargs):
+            self.current_depth += 1
+            res = func(self, *args, **kwargs)
+            self.current_depth -= 1
+            return res
+
+        return wrapper
+
+    @max_depth
+    def is_good_move(self, game):
+        if game.is_game_over()[0]:
+            print("win found")
+            return True  # you cannot loose on your turn - only win or draw
+        if self.search_depth_exceeded():
+            print("Depth exceeded")
+            return True  # eventually we stop looking and say its safe
+        if game.is_winnable():
+            print("opponent win found")
+            return False  # it we have left game in a state were opponent can win
+        can_be_won = True  # we can win (or draw) unless we find opponent has winning move
+        for opponent_move in game.get_moves():
+            new_game = game + opponent_move
+            # can_win_after_this_move is False until we find a good move (or if there are no moves --> draw)
+            can_win_after_this_move = True if not new_game.get_moves() else False
+            for move in new_game.get_moves():
+                can_win_after_this_move = can_win_after_this_move or self.is_good_move(new_game + move)
+            can_be_won = can_be_won and can_win_after_this_move  # we need to be able to win after all opponent moves
+        return can_be_won
+
     def play(self, game):
+        possible_moves = game.get_moves()
+        move_dict = {}
+        for move in possible_moves:
+            move_dict[move] = self.is_good_move(game + move)
+            print(move_dict)
+            if move_dict[move]:
+                return move
+        print(move_dict)
+        print("could not find a good move")
+        return possible_moves[0]
+
+
+class HumanPlayer:
+    @staticmethod
+    def play(game):
         print(game)
-        print("top left is 0,0")
         x = int(input("enter x:"))
         y = int(input("enter y:"))
         return x, y
 
+
 class MediumOpponent:
-    def play(self, game):
+    @staticmethod
+    def play(game):
         move_for = game.next_player()
         other_player = Square.X if move_for == Square.O else Square.O
 
@@ -93,3 +147,4 @@ opponentFactory.register_opponent('hard', 3, HardOpponentSize3)
 opponentFactory.register_opponent('medium', 3, MediumOpponent)
 opponentFactory.register_opponent('medium', 4, MediumOpponent)
 opponentFactory.register_opponent('human', None, HumanPlayer)
+opponentFactory.register_opponent('hard', None, RecursiveSearchAlgorithm)

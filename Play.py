@@ -14,9 +14,9 @@ x_or_o = get_player_mark()
 
 if x_or_o == 'X':
     team_x = opponentFactory.get_opponent('human', None)
-    team_o = opponentFactory.get_opponent('medium', 3)
+    team_o = opponentFactory.get_opponent('hard', None)
 else:
-    team_x = opponentFactory.get_opponent('medium', 3)
+    team_x = opponentFactory.get_opponent('hard', None)
     team_o = opponentFactory.get_opponent('human', None)
 
 game = Game(team_x, team_o, 3)
