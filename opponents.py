@@ -72,18 +72,21 @@ class RecursiveSearchAlgorithm:
         return possible_moves[0]
 
 
+def string_to_tuple(my_str):
+    just_numbers = ''.join(c for c in my_str if c.isdigit())
+    tuple_of_strings = tuple(just_numbers)
+    return int(tuple_of_strings[0]), int(tuple_of_strings[1])
+
+
 class HumanPlayer:
     @staticmethod
     def get_coordinate(message):
-        try:
-            return int(input(message))
-        except ValueError:
-            print('Invalid input')
-            return HumanPlayer.get_coordinate(message)
+        return string_to_tuple(input(message))
 
     def play(self, game):
         print(game)
-        return self.get_coordinate("enter x:"), self.get_coordinate("enter y:")
+        ask = "enter the coordinates of your move (e.g. enter: 1,2 ):\n(Please note bottom left is 0,0)\n"
+        return HumanPlayer.get_coordinate(ask)
 
 
 class MediumOpponent(RecursiveSearchAlgorithm):

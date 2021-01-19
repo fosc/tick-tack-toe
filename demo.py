@@ -5,7 +5,7 @@ from opponents import opponent_factory
 
 def get_player_mark():
     """Return string 'X' or 'O' based on input."""
-    x_or_o = input("Play as X or O?:").upper().strip()
+    x_or_o = input("Play as X or O? [X/O]:").upper().strip()
     while x_or_o not in ['X', 'O']:
         print("invalid input. Please enter X or O")
         x_or_o = input("Play as X or O?:").upper().strip()
