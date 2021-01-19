@@ -1,3 +1,4 @@
+"""This module contains implementations of the opponent interface (play() --> tuple)"""
 class OpponentFactory:
 
     def __init__(self):
@@ -21,10 +22,10 @@ class RecursiveSearchAlgorithm:
     def search_depth_exceeded(self):
         return self.current_depth >= self.max_search_depth
 
-    def max_depth(func):
+    def max_depth(my_func):
         def wrapper(self, *args, **kwargs):
             self.current_depth += 1
-            res = func(self, *args, **kwargs)
+            res = my_func(self, *args, **kwargs)
             self.current_depth -= 1
             return res
 
