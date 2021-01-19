@@ -1,8 +1,18 @@
-"""This module contains implementations of the opponent interface (play() --> tuple)"""
+"""
+This module contains implementations of the Player interface. A Player provides the play method:
+1. play(Game State) --> tuple
+
+The Game State interface provides the following methods:
+1. is_game_over() --> Boolean
+2. get_moves() --> list of tuples
+3. is_winnable() --> Boolean
+4. + tuple --> new Game State
+
+"""
 
 
-class OpponentFactory:
-    """Factory of opponents"""
+class PlayerFactory:
+    """Factory of the Player interface"""
     def __init__(self):
         self._creators = {}
 
@@ -40,7 +50,7 @@ class RecursiveSearchAlgorithm:
     @max_depth
     def is_good_move(self, game):
         """Draws and Wins are both considered equally good by this method"""
-        if game.is_game_over()[0]:
+        if game.is_game_over():
             return True  # you cannot loose on your turn - only win or draw
         if self.search_depth_exceeded():
             return True  # eventually we stop looking and say its safe
@@ -99,7 +109,7 @@ class HardOpponent(RecursiveSearchAlgorithm):
         super().__init__(5)
 
 
-opponent_factory = OpponentFactory()
+opponent_factory = PlayerFactory()
 opponent_factory.register_opponent('medium', MediumOpponent)
 opponent_factory.register_opponent('human', HumanPlayer)
 opponent_factory.register_opponent('hard', HardOpponent)

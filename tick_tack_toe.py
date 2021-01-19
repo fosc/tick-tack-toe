@@ -40,21 +40,21 @@ class GameBoard(Board):
     def get_empty_squares(self):
         """Return a single list of the coordinates of all squares containing SQUARE.Empty"""
         def get_empty_squares(list_of_coords):
-            return self.get_squares(list_of_coords)[SQUARE.Empty]
+            return self._get_squares(list_of_coords)[SQUARE.Empty]
         coords_of_empty = list(map(get_empty_squares, self._rows))
         return [item for sublist in coords_of_empty for item in sublist]
 
     def are_there_n_in_a_row(self, player):
         """Return True if a row/column/diagonal spans the board. Otherwise False."""
         for row in [self._diagonal, self._off_diagonal] + self._rows + self._columns:
-            if len(self.get_squares(row)[player]) == self.size:
+            if len(self._get_squares(row)[player]) == self.size:
                 return True
         return False
 
     def find_winning_move(self, player):
         """Return a list containing the coordinates of winning moves, if any exist."""
         def check_list_of_squares(list_of_squares):
-            squares = self.get_squares(list_of_squares)
+            squares = self._get_squares(list_of_squares)
             if len(squares[SQUARE.Empty]) == 1 and len(squares[player]) == self.size - 1:
                 return squares[SQUARE.Empty][0]
             return None
@@ -64,7 +64,7 @@ class GameBoard(Board):
         potential_wins += list(map(check_list_of_squares, self._columns))
         return [x for x in potential_wins if x is not None]
 
-    def get_squares(self, list_of_coords):
+    def _get_squares(self, list_of_coords):
         """Return a dictionary mapping each SQUARE type to a list of corresponding coordinates."""
         square_values = {x: self.get_square(x) for x in list_of_coords}
         square_map = {SQUARE.X: [], SQUARE.O: [], SQUARE.Empty: []}
@@ -74,7 +74,15 @@ class GameBoard(Board):
 
 
 class RuleManager:
-    """RuleManager has a GameBoard. It handles interactions with that GameBoard."""
+    """
+    RuleManager has a GameBoard. It handles interactions with that GameBoard.
+
+    Rule Manager implements the Game State interface by providing the following methods:
+    1. is_game_over() --> Boolean
+    2. get_moves() --> list of tuples
+    3. is_winnable() --> Boolean
+    4. + tuple --> new Game State
+    """
     def __init__(self, size):
         self._game_board = GameBoard(size)
         self.history = {SQUARE.X: [], SQUARE.O: []}
@@ -114,19 +122,33 @@ class RuleManager:
     def is_game_over(self):
         """Return True if someone has won or a draw has been reached"""
         if self._game_board.are_there_n_in_a_row(SQUARE.X):
-            return True, SQUARE.X
+            return True
         if self._game_board.are_there_n_in_a_row(SQUARE.O):
-            return True, SQUARE.O
+            return True
         if not self._game_board.get_empty_squares():
-            return True, None
-        return False, None
+            return True
+        return False
+
+    def get_winner(self):
+        """Return the winner if there is one, else return None"""
+        if self._game_board.are_there_n_in_a_row(SQUARE.X):
+            return SQUARE.X
+        if self._game_board.are_there_n_in_a_row(SQUARE.O):
+            return SQUARE.O
+        return None
 
     def __str__(self):
         return str(self._game_board)
 
 
 class Game:
-    """Orchestrate a game between team_x and team_o on board of size 'size'"""
+    """
+    Orchestrate a game between team_x and team_o on board of size 'size'
+
+    Initializes as Game(Player, Player, int)
+    The Player interface provides the following method:
+    1. play(Game State) --> tuple
+    """
     def __init__(self, team_x, team_o, size):
         self._game_manager = RuleManager(size)
         self._this_turn = SQUARE.X
@@ -140,7 +162,8 @@ class Game:
 
     def _is_win_or_tie(self):
         """Return True if the game is over, otherwise False."""
-        is_over, winner = self._game_manager.is_game_over()
+        is_over = self._game_manager.is_game_over()
+        winner = self._game_manager.get_winner()
         if is_over and winner is not None:
             print(self._game_manager)
             print(f"{winner} the winner")
